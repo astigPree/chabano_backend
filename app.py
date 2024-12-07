@@ -46,9 +46,6 @@ def non_csrf_view(data: TranslatePayload) -> TranslateResponse:
 
 
 
-
-
-
  
 if __name__ == '__main__':
     app.run(debug=True)
