@@ -13,6 +13,7 @@ mypath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model_selecti
 tagalog_english_model = None
 tagalog_english_tokenizer = None
 def load_english_model():
+    global tagalog_english_model, tagalog_english_tokenizer
     tagalog_english_model = MarianMTModel.from_pretrained(os.path.join(mypath, 'tagalog-english'))
     tagalog_english_tokenizer = MarianTokenizer.from_pretrained(os.path.join(mypath, 'tagalog-english'))
 threading.Thread(target=tagalog_english_model).start()
