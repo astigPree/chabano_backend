@@ -14,8 +14,11 @@ tagalog_english_model = None
 tagalog_english_tokenizer = None
 def load_tagalog_english_model():
     global tagalog_english_model, tagalog_english_tokenizer
-    tagalog_english_model = MarianMTModel.from_pretrained(os.path.join(mypath, 'tagalog-english'))
-    tagalog_english_tokenizer = MarianTokenizer.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+    try :
+        tagalog_english_model = MarianMTModel.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+        tagalog_english_tokenizer = MarianTokenizer.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+    except Exception as e:
+        print(f"Failed to load Tagalog to English model: {e}")
 threading.Thread(target=load_tagalog_english_model).start()
 
 
@@ -23,8 +26,11 @@ english_tagalog_model = None
 english_tagalog_tokenizer = None
 def load_english_tagalog_model():
     global english_tagalog_model, english_tagalog_tokenizer
-    english_tagalog_model = MarianMTModel.from_pretrained(os.path.join(mypath, 'tagalog-english'))
-    english_tagalog_tokenizer = MarianTokenizer.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+    try :
+        english_tagalog_model = MarianMTModel.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+        english_tagalog_tokenizer = MarianTokenizer.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+    except Exception as e:
+        print(f"Failed to load English to Tagalog model: {e}")
 threading.Thread(target=load_english_tagalog_model).start()
 
 
@@ -55,6 +61,7 @@ def non_csrf_view(data: TranslatePayload) -> TranslateResponse:
     print(to_language)
     
     if from_language == "tl" and to_language == "en": 
+        global tagalog_english_model, tagalog_english_tokenizer
         # Test the loaded model
         if tagalog_english_tokenizer is None:
             return jsonify({
@@ -68,6 +75,7 @@ def non_csrf_view(data: TranslatePayload) -> TranslateResponse:
         return TranslateResponse(translated_text=translated_text, voice_url="")
     
     if from_language == "en" and to_language == "tl": 
+        global english_tagalog_model, english_tagalog_tokenizer
         # Test the loaded model
         if english_tagalog_tokenizer is None:
             return jsonify({
