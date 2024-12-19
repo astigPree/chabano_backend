@@ -12,11 +12,20 @@ mypath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model_selecti
 
 tagalog_english_model = None
 tagalog_english_tokenizer = None
-def load_english_model():
+def load_tagalog_english_model():
     global tagalog_english_model, tagalog_english_tokenizer
     tagalog_english_model = MarianMTModel.from_pretrained(os.path.join(mypath, 'tagalog-english'))
     tagalog_english_tokenizer = MarianTokenizer.from_pretrained(os.path.join(mypath, 'tagalog-english'))
-threading.Thread(target=tagalog_english_model).start()
+threading.Thread(target=load_tagalog_english_model).start()
+
+
+english_tagalog_model = None
+english_tagalog_tokenizer = None
+def load_english_tagalog_model():
+    global english_tagalog_model, english_tagalog_tokenizer
+    english_tagalog_model = MarianMTModel.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+    english_tagalog_tokenizer = MarianTokenizer.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+threading.Thread(target=load_english_tagalog_model).start()
 
 
 
@@ -55,6 +64,19 @@ def non_csrf_view(data: TranslatePayload) -> TranslateResponse:
         inputs = tagalog_english_tokenizer(sentence, return_tensors="pt", max_length=128, truncation=True)
         translation = tagalog_english_model.generate(**inputs)
         translated_text = tagalog_english_tokenizer.decode(translation[0], skip_special_tokens=True)
+        print(f"Translated text: {translated_text}")
+        return TranslateResponse(translated_text=translated_text, voice_url="")
+    
+    if from_language == "en" and to_language == "tl": 
+        # Test the loaded model
+        if english_tagalog_tokenizer is None:
+            return jsonify({
+                "error": "Model not loaded",
+                "message": "Model not loaded"
+            }) , 500
+        inputs = english_tagalog_tokenizer(sentence, return_tensors="pt", max_length=128, truncation=True)
+        translation = english_tagalog_model.generate(**inputs)
+        translated_text = english_tagalog_tokenizer.decode(translation[0], skip_special_tokens=True)
         print(f"Translated text: {translated_text}")
         return TranslateResponse(translated_text=translated_text, voice_url="")
 
