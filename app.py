@@ -1,6 +1,17 @@
 from flask import Flask, jsonify 
 from flask_ninja import NinjaAPI
 from pydantic import BaseModel
+import os
+import pandas as pd
+# import torch
+from transformers import MarianMTModel, MarianTokenizer, Trainer, TrainingArguments, DataCollatorForSeq2Seq
+# from sklearn.model_selection import train_test_split
+
+mypath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model_selection') 
+
+tagalog_english_model = MarianMTModel.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+tagalog_english_tokenizer = MarianTokenizer.from_pretrained(os.path.join(mypath, 'tagalog-english'))
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Chabano-Backend-Secret-Key'
@@ -26,6 +37,14 @@ def non_csrf_view(data: TranslatePayload) -> TranslateResponse:
     print(sentence)
     print(from_language)
     print(to_language)
+    
+    if from_language == "tl" and to_language == "en": 
+        # Test the loaded model
+        inputs = tagalog_english_tokenizer(sentence, return_tensors="pt", max_length=128, truncation=True)
+        translation = tagalog_english_model.generate(**inputs)
+        translated_text = tagalog_english_tokenizer.decode(translation[0], skip_special_tokens=True)
+        print(f"Translated text: {translated_text}")
+        return TranslateResponse(translated_text=translated_text, voice_url="")
 
     return TranslateResponse(translated_text=sentence, voice_url="")
 
